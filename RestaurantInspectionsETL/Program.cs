@@ -63,17 +63,19 @@ namespace RestaurantInspectionsETL
             DataFrame labeledFlagDf =
                 cleanDf
                     .WithColumn("CRITICALFLAG",
-                        When(Functions.Col("CRITICALFLAG") == "Y",1)
+                        When(Col("CRITICALFLAG") == "Y",1)
                         .Otherwise(0));
             
              // Aggregate violations by business and inspection
             DataFrame groupedDf =
                 labeledFlagDf
                     .GroupBy("DBA", "INSPECTIONDATE", "INSPECTIONTYPE", "CRITICALFLAG", "SCORE", "GRADE")
-                    .Agg(Functions.CollectSet(Functions.Col("VIOLATIONCODE")).Alias("CODES"))
+                    .Agg(
+                        CollectSet(Col("VIOLATIONCODE")).Alias("CODES"),
+                        Sum("CRITICALFLAG").Alias("FLAGS"))
                     .Drop("DBA", "INSPECTIONDATE")
-                    .WithColumn("CODES", Functions.ArrayJoin(Functions.Col("CODES"), ","))
-                    .Select("INSPECTIONTYPE", "CODES", "CRITICALFLAG", "SCORE", "GRADE");             
+                    .WithColumn("CODES", ArrayJoin(Col("CODES"), ","))
+                    .Select("INSPECTIONTYPE", "CODES", "FLAGS", "SCORE", "GRADE");
 
             // Split into graded and ungraded DataFrames
             DataFrame gradedDf =
@@ -100,7 +102,7 @@ namespace RestaurantInspectionsETL
                 Directory.CreateDirectory(saveDirectory);
             }
 
-            gradedDf.Write()..Mode(SaveMode.Overwrite).Csv(Path.Join(saveDirectory,"Graded"));
+            gradedDf.Write().Mode(SaveMode.Overwrite).Csv(Path.Join(saveDirectory,"Graded"));
 
             ungradedDf.Write().Mode(SaveMode.Overwrite).Csv(Path.Join(saveDirectory,"Ungraded"));
         }

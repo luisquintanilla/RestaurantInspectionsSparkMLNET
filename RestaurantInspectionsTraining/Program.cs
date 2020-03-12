@@ -13,7 +13,7 @@ namespace RestaurantInspectionsTraining
         static void Main(string[] args)
         {
             // Define source data directory paths
-            string solutionDirectory = "/home/lqdev/Development/RestaurantInspectionsSparkMLNET";
+            string solutionDirectory = "..";
             string dataLocation = Path.Combine(solutionDirectory,"RestaurantInspectionsETL","Output");
 
             // Initialize MLContext

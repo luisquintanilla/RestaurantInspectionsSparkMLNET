@@ -21,7 +21,7 @@ namespace RestaurantInspectionsEnrichment
         static void Main(string[] args)
         {
             // Define source data directory paths
-            string solutionDirectory = "/home/lqdev/Development/RestaurantInspectionsSparkMLNET";
+            string solutionDirectory = args[0];
             string dataLocation = Path.Combine(solutionDirectory,"RestaurantInspectionsETL","Output");
 
             var latestOutput = 
